@@ -1,1 +1,2 @@
+kaggle: used in /ingest/load_bronze.py to download the dataset from Kaggle's API
 kaggle>=1.8.0
