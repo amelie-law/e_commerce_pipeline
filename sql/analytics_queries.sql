@@ -91,3 +91,27 @@ SELECT
     ) AS pct_change_vs_previous_month
 FROM monthly_totals
 ORDER BY order_month DESC;
+
+
+-- 6. Customer segmentation 
+-- How many customers have made a single purchase vs. repeat purchases?
+
+WITH customer_order_counts AS (
+    SELECT
+        c.customer_unique_id,
+        COUNT(DISTINCT f.order_sk) AS order_count,
+        CASE 
+            WHEN COUNT(DISTINCT f.order_sk) = 1 THEN 'One-time' 
+            ELSE 'Repeat' 
+        END AS order_count_bucket
+    FROM olist.gold.fact_order_items f
+    JOIN olist.gold.dim_customer c 
+        ON f.customer_sk = c.customer_sk
+    GROUP BY c.customer_unique_id
+)
+SELECT
+    order_count_bucket,
+    COUNT(*) AS customers,
+    ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (), 1) AS pct_of_total
+FROM customer_order_counts
+GROUP BY order_count_bucket;
